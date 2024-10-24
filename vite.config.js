@@ -1,15 +1,17 @@
+// vite.config.js
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/website/',  // Ensure this is correctly set
+  base: '/website/',  // Make sure this points to your repository name
+  resolve: {
+    alias: {
+      'three': 'node_modules/three/build/three.module.js'
+    }
+  },
   build: {
     rollupOptions: {
-      external: ['three'], // Make sure three.js is bundled correctly
-      output: {
-        globals: {
-          three: 'THREE',  // Specify the global name for three.js
-        }
-      }
-    }
-  }
+      // Ensure nothing is treated as external
+      external: [],
+    },
+  },
 });
