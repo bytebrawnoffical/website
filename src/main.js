@@ -11,6 +11,7 @@ camera.position.z = 10;
 // Create a renderer and add it to the document
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xe5904f);  // Set background color to #e5904f
 document.body.appendChild(renderer.domElement);
 
 // Add some ambient light
@@ -19,7 +20,7 @@ scene.add(ambientLight);
 
 // Function to apply material to the OBJ model
 const applyMaterial = (object, color) => {
-  const material = new THREE.MeshPhongMaterial({ color: color });
+  const material = new THREE.MeshBasicMaterial({ color: color });
   object.traverse((child) => {
     if (child.isMesh) {
       child.material = material;
@@ -30,9 +31,8 @@ const applyMaterial = (object, color) => {
 // Animation function
 function animate(object) {
   requestAnimationFrame(() => animate(object));
-  object.rotation.y += 0.01;
-  object.rotation.x += 0.01;
-  object.rotation.z += 0.01;
+  object.rotation.y += 0.005;  // Slow and gentle rotation on Y-axis
+  object.rotation.z += 0.004;  // Slow and gentle rotation on Y-axis
   renderer.render(scene, camera);
 }
 
@@ -45,7 +45,8 @@ const loadOBJModel = (primaryPath, fallbackPath) => {
     primaryPath,
     (object) => {
       object.scale.set(0.8, 0.8, 0.8);
-      applyMaterial(object, 0xeb5434);  // Apply primary color
+      object.rotation.x = Math.PI / 2;  // Make the logo stand upright
+      applyMaterial(object, 0xee5535);  // Apply new color #ee5535 to the model
       scene.add(object);
       animate(object);
     },
@@ -60,6 +61,7 @@ const loadOBJModel = (primaryPath, fallbackPath) => {
           fallbackPath,
           (object) => {
             object.scale.set(0.5, 0.5, 0.5);
+            object.rotation.x = Math.PI / 2;  // Make the logo stand upright for fallback model as well
             applyMaterial(object, 0xedccbb);  // Apply fallback color
             scene.add(object);
             animate(object);
