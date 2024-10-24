@@ -2,5 +2,5 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/', // Since you are using a custom domain, base should be set to '/'
+  base: '/website/', // Replace 'website' with your repository name
 });
