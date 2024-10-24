@@ -40,11 +40,22 @@
       height: 100%;
     }
   </style>
-  <script type="module" crossorigin src="/website/assets/index-cCDvBx4N.js"></script>
+
+  <!-- Import Map to resolve Three.js and OBJLoader from unpkg -->
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.155.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.155.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" crossorigin src="/website/assets/index-B1gbSOgd.js"></script>
 </head>
 <body>
 
-  <!-- Link to Three.js script -->
+  <!-- Your existing script import -->
 
 </body>
 </html>
