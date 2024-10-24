@@ -17,11 +17,24 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);  // Soft white light
 scene.add(ambientLight);
 
+// Function to apply material to the OBJ model
+const applyMaterial = (object, color) => {
+  const material = new THREE.MeshPhongMaterial({ color: color });  // Use a MeshPhongMaterial for color and light interaction
+
+  object.traverse((child) => {
+    if (child.isMesh) {
+      child.material = material;  // Apply the material to all mesh objects
+    }
+  });
+};
+
 // Animation function
 function animate(object) {
   requestAnimationFrame(() => animate(object));
-  object.rotation.x += 0.01;
   object.rotation.y += 0.01;
+  object.rotation.x += 0.01;
+  object.rotation.z+= 0.01;
+
   renderer.render(scene, camera);
 }
 
@@ -32,7 +45,8 @@ const loadOBJModel = (primaryPath, fallbackPath) => {
   objLoader.load(
     primaryPath,
     (object) => {
-      object.scale.set(0.5, 0.5, 0.5);  // Scale the model as needed
+      object.scale.set(0.8, 0.8, 0.8);  // Scale the model as needed
+      applyMaterial(object, 0xeb5434);  // Apply the color #eb5434 to the model
       scene.add(object);
       animate(object);
     },
@@ -45,6 +59,7 @@ const loadOBJModel = (primaryPath, fallbackPath) => {
           fallbackPath,
           (object) => {
             object.scale.set(0.5, 0.5, 0.5);
+            applyMaterial(object, 0xedccbb);  // Apply the color #eb5434 to the fallback model
             scene.add(object);
             animate(object);
           },
