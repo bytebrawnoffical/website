@@ -12,20 +12,66 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Create a cube
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+// Load the texture
+const textureLoader = new THREE.TextureLoader();
 
-// Animation loop
-function animate() {
-  requestAnimationFrame(animate);
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-  renderer.render(scene, camera);
-}
-animate();
+// Attempt to load the texture
+textureLoader.load(
+  '/assets/template.jpg',  // Adjust this path to the actual location of your image
+  (texture) => {
+    // On successful load, apply the texture to the cube
+    const materials = [
+      new THREE.MeshBasicMaterial({ map: texture }),
+      new THREE.MeshBasicMaterial({ map: texture }),
+      new THREE.MeshBasicMaterial({ map: texture }),
+      new THREE.MeshBasicMaterial({ map: texture }),
+      new THREE.MeshBasicMaterial({ map: texture }),
+      new THREE.MeshBasicMaterial({ map: texture }),
+    ];
+
+    // Create the cube with the texture on each side
+    const geometry = new THREE.BoxGeometry();
+    const cube = new THREE.Mesh(geometry, materials);
+    scene.add(cube);
+
+    // Animation loop to rotate the cube
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+  },
+  undefined,  // Optional loading progress callback
+  (error) => {
+    console.error('An error occurred while loading the texture:', error);
+
+    // Fallback: Create a cube with different colored sides if the texture fails to load
+    const fallbackMaterials = [
+      new THREE.MeshBasicMaterial({ color: 0xff0000 }),  // Red
+      new THREE.MeshBasicMaterial({ color: 0x00ff00 }),  // Green
+      new THREE.MeshBasicMaterial({ color: 0x0000ff }),  // Blue
+      new THREE.MeshBasicMaterial({ color: 0xffff00 }),  // Yellow
+      new THREE.MeshBasicMaterial({ color: 0x00ffff }),  // Cyan
+      new THREE.MeshBasicMaterial({ color: 0xff00ff }),  // Magenta
+    ];
+
+    // Create the cube with fallback colors
+    const geometry = new THREE.BoxGeometry();
+    const cube = new THREE.Mesh(geometry, fallbackMaterials);
+    scene.add(cube);
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+);
 
 // Adjust scene on window resize
 window.addEventListener('resize', () => {
