@@ -1,4 +1,5 @@
 import * as THREE from 'https://unpkg.com/three@0.155.0/build/three.module.js';
+import { OBJLoader } from 'https://unpkg.com/three@0.155.0/examples/jsm/loaders/OBJLoader.js';
 
 // Create a scene
 const scene = new THREE.Scene();
@@ -12,76 +13,34 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Load the texture
-const textureLoader = new THREE.TextureLoader();
+// Add some ambient light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);  // Soft white light
+scene.add(ambientLight);
 
-// Attempt to load the texture
-textureLoader.load(
-  '/assets/template.jpg',  // Adjust this path to the actual location of your image
-  (texture) => {
-    // On successful load, apply the texture to the cube
-    const materials = [
-      new THREE.MeshBasicMaterial({ map: texture }),
-      new THREE.MeshBasicMaterial({ map: texture }),
-      new THREE.MeshBasicMaterial({ map: texture }),
-      new THREE.MeshBasicMaterial({ map: texture }),
-      new THREE.MeshBasicMaterial({ map: texture }),
-      new THREE.MeshBasicMaterial({ map: texture }),
-    ];
+// Load your custom OBJ model
+const objLoader = new OBJLoader();
+objLoader.load(
+  '/website/assets/Logo1.obj',  // Replace this with the correct path to your OBJ file
+  (object) => {
+    object.scale.set(0.5, 0.5, 0.5);  // Scale the model as needed
+    scene.add(object);
 
-    // Create the cube with the texture on each side
-    const geometry = new THREE.BoxGeometry();
-    const cube = new THREE.Mesh(geometry, materials);
-
-    // Scale the cube by 120%
-    cube.scale.set(2, 2, 2);  // Makes the cube 120% bigger along all axes
-
-    scene.add(cube);
-
-    // Animation loop to rotate the cube
+    // Animation loop to rotate the object
     function animate() {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      object.rotation.x += 0.01;
+      object.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
     animate();
   },
-  undefined,  // Optional loading progress callback
+  undefined,
   (error) => {
-    console.error('An error occurred while loading the texture:', error);
-
-    // Fallback: Create a cube with different colored sides if the texture fails to load
-    const fallbackMaterials = [
-      new THREE.MeshBasicMaterial({ color: 0xff0000 }),  // Red
-      new THREE.MeshBasicMaterial({ color: 0x00ff00 }),  // Green
-      new THREE.MeshBasicMaterial({ color: 0x0000ff }),  // Blue
-      new THREE.MeshBasicMaterial({ color: 0xffff00 }),  // Yellow
-      new THREE.MeshBasicMaterial({ color: 0x00ffff }),  // Cyan
-      new THREE.MeshBasicMaterial({ color: 0xff00ff }),  // Magenta
-    ];
-
-    // Create the cube with fallback colors
-    const geometry = new THREE.BoxGeometry();
-    const cube = new THREE.Mesh(geometry, fallbackMaterials);
-
-    // Scale the cube by 120% (in case the fallback cube needs to be bigger too)
-    cube.scale.set(1.2, 1.2, 1.2);
-
-    scene.add(cube);
-
-    // Animation loop
-    function animate() {
-      requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-      renderer.render(scene, camera);
-    }
-    animate();
+    console.error('Error loading the OBJ model:', error);
   }
 );
 
-// Adjust scene on window resize
+// Handle window resize
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   camera.aspect = window.innerWidth / window.innerHeight;
