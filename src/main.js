@@ -76,9 +76,6 @@ const loadOBJModel = (primaryPath, fallbackPath) => {
 // Use the raw GitHub URL for the primary path
 const primaryPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/logo.obj';
 
-// Load your custom OBJ model with fallback paths
-loadOBJModel(primaryPath, '/website/assets/logo.obj');
-
 // If the fallback also fails, use an additional fallback:
 loadOBJModel('/website/assets/logo.obj', '/assets/logo.obj');
 
