@@ -17,28 +17,59 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);  // Soft white light
 scene.add(ambientLight);
 
-// Load your custom OBJ model
-const objLoader = new OBJLoader();
-objLoader.load(
-  '/website/assets/Logo1.obj',  // Replace this with the correct path to your OBJ file
-  (object) => {
-    object.scale.set(0.5, 0.5, 0.5);  // Scale the model as needed
-    scene.add(object);
+// Function to load OBJ model and handle fallbacks
+const loadOBJModel = (primaryPath, fallbackPath) => {
+  const objLoader = new OBJLoader();
+  
+  // First, try loading from the primary path
+  objLoader.load(
+    primaryPath,
+    (object) => {
+      object.scale.set(0.5, 0.5, 0.5);  // Scale the model as needed
+      scene.add(object);
+      
+      // Animation loop to rotate the object
+      function animate() {
+        requestAnimationFrame(animate);
+        object.rotation.x += 0.01;
+        object.rotation.y += 0.01;
+        renderer.render(scene, camera);
+      }
+      animate();
+    },
+    undefined,
+    (error) => {
+      console.error('Error loading the OBJ model from primary path:', error);
+      // Fallback: Try loading from the secondary path
+      if (fallbackPath) {
+        console.log(`Trying fallback path: ${fallbackPath}`);
+        objLoader.load(
+          fallbackPath,
+          (object) => {
+            object.scale.set(0.5, 0.5, 0.5);  // Scale the model as needed
+            scene.add(object);
 
-    // Animation loop to rotate the object
-    function animate() {
-      requestAnimationFrame(animate);
-      object.rotation.x += 0.01;
-      object.rotation.y += 0.01;
-      renderer.render(scene, camera);
+            // Animation loop to rotate the object
+            function animate() {
+              requestAnimationFrame(animate);
+              object.rotation.x += 0.01;
+              object.rotation.y += 0.01;
+              renderer.render(scene, camera);
+            }
+            animate();
+          },
+          undefined,
+          (error) => {
+            console.error('Error loading the OBJ model from fallback path:', error);
+          }
+        );
+      }
     }
-    animate();
-  },
-  undefined,
-  (error) => {
-    console.error('Error loading the OBJ model:', error);
-  }
-);
+  );
+};
+
+// Load your custom OBJ model with fallback path
+loadOBJModel('/website/assets/Logo1.obj', '/assets/Logo1.obj');
 
 // Handle window resize
 window.addEventListener('resize', () => {
