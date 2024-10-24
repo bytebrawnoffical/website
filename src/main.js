@@ -32,6 +32,10 @@ textureLoader.load(
     // Create the cube with the texture on each side
     const geometry = new THREE.BoxGeometry();
     const cube = new THREE.Mesh(geometry, materials);
+
+    // Scale the cube by 120%
+    cube.scale.set(2, 2, 2);  // Makes the cube 120% bigger along all axes
+
     scene.add(cube);
 
     // Animation loop to rotate the cube
@@ -60,6 +64,10 @@ textureLoader.load(
     // Create the cube with fallback colors
     const geometry = new THREE.BoxGeometry();
     const cube = new THREE.Mesh(geometry, fallbackMaterials);
+
+    // Scale the cube by 120% (in case the fallback cube needs to be bigger too)
+    cube.scale.set(1.2, 1.2, 1.2);
+
     scene.add(cube);
 
     // Animation loop
