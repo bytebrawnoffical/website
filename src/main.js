@@ -31,6 +31,10 @@ controls.enableZoom = true;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 2;
 
+// Set the min and max distance for the zoom
+controls.minDistance = 5;  // Minimum distance the camera can zoom in
+controls.maxDistance = 20; // Maximum distance the camera can zoom out
+
 // Create confetti particles
 function createConfetti() {
   const confettiGroup = new THREE.Group();
