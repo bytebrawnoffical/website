@@ -13,7 +13,6 @@ camera.position.z = 10;
 // Create a renderer and add it to the document
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xe5904f);  // Set background color to #e5904f
 document.body.appendChild(renderer.domElement);
 
 // Add some ambient light and directional light for better material rendering
@@ -26,40 +25,37 @@ scene.add(directionalLight);
 
 // Add OrbitControls to allow mouse interaction
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;  // Adds smooth damping when rotating
+controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.enableZoom = true;     // Allows zooming in and out
-controls.autoRotate = true;     // Enable automatic rotation
-controls.autoRotateSpeed = 2;   // Auto-rotate speed
+controls.enableZoom = true;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 2;
 
 // Create confetti particles
 function createConfetti() {
   const confettiGroup = new THREE.Group();
-  const confettiCount = 500;  // Number of confetti pieces
-  const spread = 50;          // How far confetti spreads across the scene
-
-  const colors = [0xff0000, 0x00ff00, 0x0000ff];  // Pure Red, Green, and Blue
+  const confettiCount = 500;
+  const spread = 50;
+  const colors = [0xff0000, 0x00ff00, 0x0000ff]; // Pure Red, Green, and Blue
 
   for (let i = 0; i < confettiCount; i++) {
-    const geometry = new THREE.PlaneGeometry(0.3, 0.1);  // Small rectangle shape for confetti
+    const geometry = new THREE.PlaneGeometry(0.3, 0.1);
     const material = new THREE.MeshBasicMaterial({
-      color: colors[Math.floor(Math.random() * colors.length)],  // Random RGB color
-      side: THREE.DoubleSide
+      color: colors[Math.floor(Math.random() * colors.length)],
+      side: THREE.DoubleSide,
     });
     const confetti = new THREE.Mesh(geometry, material);
 
-    // Position confetti randomly in 3D space
     confetti.position.set(
-      (Math.random() - 0.5) * spread,  // Random X
-      (Math.random() - 0.5) * spread,  // Random Y
-      (Math.random() - 0.5) * spread   // Random Z
+      (Math.random() - 0.5) * spread,
+      (Math.random() - 0.5) * spread,
+      (Math.random() - 0.5) * spread
     );
 
-    // Random rotation for each confetti
     confetti.rotation.set(
-      Math.random() * Math.PI,  // Random X rotation
-      Math.random() * Math.PI,  // Random Y rotation
-      Math.random() * Math.PI   // Random Z rotation
+      Math.random() * Math.PI,
+      Math.random() * Math.PI,
+      Math.random() * Math.PI
     );
 
     confettiGroup.add(confetti);
@@ -69,14 +65,13 @@ function createConfetti() {
   return confettiGroup;
 }
 
-// Create confetti and animate it
 const confetti = createConfetti();
 
 function animateConfetti() {
   confetti.children.forEach((piece) => {
-    piece.position.y -= 0.02;  // Slowly move confetti downwards
+    piece.position.y -= 0.02;
     if (piece.position.y < -25) {
-      piece.position.y = 25;   // Reset position to top when confetti goes below the scene
+      piece.position.y = 25;
     }
   });
 }
@@ -84,9 +79,8 @@ function animateConfetti() {
 // Animation function
 function animateScene() {
   requestAnimationFrame(animateScene);
-
-  controls.update();         // Update controls every frame
-  animateConfetti();         // Animate confetti
+  controls.update();
+  animateConfetti();
   renderer.render(scene, camera);
 }
 
@@ -99,16 +93,15 @@ function loadOBJWithMTL(objPath, mtlPath) {
     objLoader.setMaterials(materials);
     objLoader.load(objPath, (object) => {
       object.scale.set(0.8, 0.8, 0.8);
-      object.rotation.x = -Math.PI / 2;  // Adjust to make it upright
+      object.rotation.x = -Math.PI / 2;
       scene.add(object);
-      animateScene();  // Start the animation
+      animateScene();
     });
   });
 }
 
-// Load the custom OBJ model with MTL
-const objPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.obj';
-const mtlPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.mtl';
+const objPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.obj';  // Update to your OBJ path
+const mtlPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.mtl';  // Update to your MTL path
 loadOBJWithMTL(objPath, mtlPath);
 
 // Handle window resize
@@ -117,3 +110,25 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 });
+
+// Create and animate the "Loading..." text dynamically
+const loadingText = document.createElement('div');
+loadingText.id = 'loading-text';
+loadingText.style.position = 'absolute';
+loadingText.style.bottom = '50px';
+loadingText.style.width = '100%';
+loadingText.style.fontSize = '24px';
+loadingText.style.color = '#ffffff';
+loadingText.style.textAlign = 'center';
+loadingText.style.zIndex = '10';
+loadingText.textContent = 'Loading';
+
+// Append the loading text to the body
+document.body.appendChild(loadingText);
+
+// Animate the loading dots
+let dotCount = 0;
+setInterval(() => {
+  dotCount = (dotCount + 1) % 4;  // Loop between 0 and 3 dots
+  loadingText.textContent = 'Product Loading' + '.'.repeat(dotCount);
+}, 500);  // Change every half second
