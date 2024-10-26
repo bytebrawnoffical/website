@@ -3,6 +3,15 @@ import { OBJLoader } from 'https://unpkg.com/three@0.155.0/examples/jsm/loaders/
 import { MTLLoader } from 'https://unpkg.com/three@0.155.0/examples/jsm/loaders/MTLLoader.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.155.0/examples/jsm/controls/OrbitControls.js';
 
+// Utility to check if the device is running iOS/Safari
+function isIOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function isSafari() {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
+
 // Create a scene
 const scene = new THREE.Scene();
 
@@ -17,13 +26,44 @@ renderer.setPixelRatio(window.devicePixelRatio);  // Ensure it scales for mobile
 scene.background = new THREE.Color(0x000000); // Sets background to black
 document.body.appendChild(renderer.domElement);
 
-// Create a video element
+// Create a video element with multiple sources
 const video = document.createElement('video');
-video.src = 'assets/ezgif.com-gif-to-mp4-converter(4).mp4';  // Path to your video file
 video.loop = true;
 video.muted = true;
 video.playsInline = true;  // Important for mobile
-video.autoplay = true;     // Try forcing autoplay
+video.autoplay = false;    // Autoplay disabled for Safari
+
+// Add both .mp4 and .webm sources
+const sourceMP4 = document.createElement('source');
+sourceMP4.src = 'assets/ezgif.com-gif-to-mp4-converter(4).mp4';
+sourceMP4.type = 'video/mp4';
+
+const sourceWEBM = document.createElement('source');
+sourceWEBM.src = 'assets/ezgif.com-gif-to-mp4-converter(4).webm';
+sourceWEBM.type = 'video/webm';
+
+// Append the sources to the video element
+video.appendChild(sourceMP4);
+video.appendChild(sourceWEBM);
+
+// Force video play on user interaction (for Safari/iOS workaround)
+function playVideoOnUserInteraction() {
+  video.play().catch((e) => {
+    console.error('Video playback failed:', e);
+  });
+  document.removeEventListener('click', playVideoOnUserInteraction);
+  document.removeEventListener('touchstart', playVideoOnUserInteraction);
+}
+
+if (isIOS() || isSafari()) {
+  // Listen for user interaction to start video playback
+  document.addEventListener('click', playVideoOnUserInteraction);
+  document.addEventListener('touchstart', playVideoOnUserInteraction);
+} else {
+  // For non-Safari, autoplay can be triggered normally
+  video.autoplay = true;
+  video.play();
+}
 
 // Fallback for static image if video fails to load
 video.addEventListener('canplay', () => {
