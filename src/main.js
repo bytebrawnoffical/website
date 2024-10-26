@@ -29,102 +29,87 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;  // Adds smooth damping when rotating
 controls.dampingFactor = 0.05;
 controls.enableZoom = true;     // Allows zooming in and out
+controls.autoRotate = true;     // Enable automatic rotation
+controls.autoRotateSpeed = 2;   // Auto-rotate speed
 
-// Remove rotation limits to allow full 360° rotation
-controls.minPolarAngle = 0;   // Allow full vertical rotation
-controls.maxPolarAngle = Math.PI; // No limits on vertical spin
-controls.enablePan = true;    // Enable panning
-controls.autoRotate = true;   // Enable automatic rotation
-controls.autoRotateSpeed = 2; // Auto-rotate speed
+// Create confetti particles
+function createConfetti() {
+  const confettiGroup = new THREE.Group();
+  const confettiCount = 500;  // Number of confetti pieces
+  const spread = 50;          // How far confetti spreads across the scene
+
+  const colors = [0xff0000, 0x00ff00, 0x0000ff];  // Pure Red, Green, and Blue
+
+  for (let i = 0; i < confettiCount; i++) {
+    const geometry = new THREE.PlaneGeometry(0.3, 0.1);  // Small rectangle shape for confetti
+    const material = new THREE.MeshBasicMaterial({
+      color: colors[Math.floor(Math.random() * colors.length)],  // Random RGB color
+      side: THREE.DoubleSide
+    });
+    const confetti = new THREE.Mesh(geometry, material);
+
+    // Position confetti randomly in 3D space
+    confetti.position.set(
+      (Math.random() - 0.5) * spread,  // Random X
+      (Math.random() - 0.5) * spread,  // Random Y
+      (Math.random() - 0.5) * spread   // Random Z
+    );
+
+    // Random rotation for each confetti
+    confetti.rotation.set(
+      Math.random() * Math.PI,  // Random X rotation
+      Math.random() * Math.PI,  // Random Y rotation
+      Math.random() * Math.PI   // Random Z rotation
+    );
+
+    confettiGroup.add(confetti);
+  }
+
+  scene.add(confettiGroup);
+  return confettiGroup;
+}
+
+// Create confetti and animate it
+const confetti = createConfetti();
+
+function animateConfetti() {
+  confetti.children.forEach((piece) => {
+    piece.position.y -= 0.02;  // Slowly move confetti downwards
+    if (piece.position.y < -25) {
+      piece.position.y = 25;   // Reset position to top when confetti goes below the scene
+    }
+  });
+}
 
 // Animation function
-function animate(object) {
-  requestAnimationFrame(() => animate(object));
+function animateScene() {
+  requestAnimationFrame(animateScene);
 
-  controls.update();  // Update controls every frame
+  controls.update();         // Update controls every frame
+  animateConfetti();         // Animate confetti
   renderer.render(scene, camera);
 }
 
-// Function to load OBJ model with MTL material support and override with standard material
-const loadOBJWithMTL = (objPath, mtlPath, fallbackObjPath) => {
+// Load the OBJ model (your logo)
+function loadOBJWithMTL(objPath, mtlPath) {
   const mtlLoader = new MTLLoader();
+  mtlLoader.load(mtlPath, (materials) => {
+    materials.preload();
+    const objLoader = new OBJLoader();
+    objLoader.setMaterials(materials);
+    objLoader.load(objPath, (object) => {
+      object.scale.set(0.8, 0.8, 0.8);
+      object.rotation.x = -Math.PI / 2;  // Adjust to make it upright
+      scene.add(object);
+      animateScene();  // Start the animation
+    });
+  });
+}
 
-  // Load the MTL file first
-  mtlLoader.load(
-    mtlPath,
-    (materials) => {
-      materials.preload();
-
-      const objLoader = new OBJLoader();
-      objLoader.setMaterials(materials);
-
-      // Load the OBJ file
-      objLoader.load(
-        objPath,
-        (object) => {
-          object.scale.set(0.8, 0.8, 0.8);
-
-          // Final small adjustment to make it perfectly upright
-          object.rotation.x = -Math.PI / 2;  // Slightly adjusted for final upright position
-
-          // Apply MeshStandardMaterial to handle lighting and material properties
-          const customMaterial = new THREE.MeshStandardMaterial({
-            color: 0xff5c00,  // Lighter, more vibrant orange color
-            metalness: 0.1,   // Reduce metalness to make it less reflective
-            roughness: 0.5    // Reduce roughness to make the surface smoother and brighter
-          });
-
-          object.traverse((child) => {
-            if (child.isMesh) {
-              child.material = customMaterial;
-            }
-          });
-
-          scene.add(object);
-          animate(object);
-        },
-        undefined,
-        (error) => {
-          console.error('Error loading the OBJ model with MTL:', error);
-
-          // Fallback: Try loading from the fallback OBJ path without MTL
-          if (fallbackObjPath) {
-            console.log(`Trying fallback OBJ path: ${fallbackObjPath}`);
-            objLoader.load(
-              fallbackObjPath,
-              (object) => {
-                object.scale.set(0.5, 0.5, 0.5);
-                object.rotation.x = -Math.PI / 2.8;  // Adjust fallback model's initial rotation as well
-                const fallbackMaterial = new THREE.MeshStandardMaterial({ color: 0xffd1a1, metalness: 0.2, roughness: 0.3 });  // Fallback material
-                object.traverse((child) => {
-                  if (child.isMesh) {
-                    child.material = fallbackMaterial;
-                  }
-                });
-                scene.add(object);
-                animate(object);
-              },
-              undefined,
-              (error) => {
-                console.error('Error loading the fallback OBJ model:', error);
-              }
-            );
-          }
-        }
-      );
-    },
-    (error) => {
-      console.error('Error loading MTL file:', error);
-    }
-  );
-};
-
-// Use the raw GitHub URL for the primary OBJ and MTL paths
+// Load the custom OBJ model with MTL
 const objPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.obj';
 const mtlPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.mtl';
-
-// Load the custom OBJ model with MTL and fallback paths
-loadOBJWithMTL(objPath, mtlPath, '/website/assets/component.obj');
+loadOBJWithMTL(objPath, mtlPath);
 
 // Handle window resize
 window.addEventListener('resize', () => {
