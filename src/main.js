@@ -168,9 +168,32 @@ function loadOBJWithMTL(objPath, mtlPath) {
   });
 }
 
+
 const objPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.obj';  // Update to your OBJ path
 const mtlPath = 'https://raw.githubusercontent.com/bytebrawnoffical/website/main/assets/component.mtl';  // Update to your MTL path
 loadOBJWithMTL(objPath, mtlPath);
+
+// Create and animate the "Loading..." text dynamically
+const loadingText = document.createElement('div');
+loadingText.id = 'loading-text';
+loadingText.style.position = 'absolute';
+loadingText.style.bottom = '50px';
+loadingText.style.width = '100%';
+loadingText.style.fontSize = '24px';
+loadingText.style.color = '#000000';
+loadingText.style.textAlign = 'center';
+loadingText.style.zIndex = '10';
+loadingText.textContent = 'Loading';
+
+// Append the loading text to the body
+document.body.appendChild(loadingText);
+
+// Animate the loading dots
+let dotCount = 0;
+setInterval(() => {
+  dotCount = (dotCount + 1) % 4;  // Loop between 0 and 3 dots
+  loadingText.textContent = 'Loading' + '.'.repeat(dotCount);
+}, 500);  // Change every half second
 
 // Handle window resize
 window.addEventListener('resize', () => {
