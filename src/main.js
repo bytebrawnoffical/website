@@ -13,6 +13,7 @@ camera.position.z = 10;
 // Create a renderer and add it to the document, enable alpha
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);  // Ensure it scales for mobile devices
 scene.background = new THREE.Color(0x000000); // Sets background to black
 document.body.appendChild(renderer.domElement);
 
@@ -21,11 +22,22 @@ const video = document.createElement('video');
 video.src = 'assets/ezgif.com-gif-to-mp4-converter(4).mp4';  // Path to your video file
 video.loop = true;
 video.muted = true;
-video.play();
+video.playsInline = true;  // Important for mobile
+video.autoplay = true;     // Try forcing autoplay
 
-// Create a video texture and set it as the background
-const videoTexture = new THREE.VideoTexture(video);
-scene.background = videoTexture;  // Lighting does not affect this
+// Fallback for static image if video fails to load
+video.addEventListener('canplay', () => {
+  const videoTexture = new THREE.VideoTexture(video);
+  scene.background = videoTexture;
+  video.play();
+});
+
+video.addEventListener('error', () => {
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.load('assets/static-background-image.jpg', (texture) => {
+    scene.background = texture;  // Fallback image
+  });
+});
 
 // Add some ambient light and directional light for better material rendering
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -126,25 +138,3 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 });
-
-// Create and animate the "Loading..." text dynamically
-const loadingText = document.createElement('div');
-loadingText.id = 'loading-text';
-loadingText.style.position = 'absolute';
-loadingText.style.bottom = '50px';
-loadingText.style.width = '100%';
-loadingText.style.fontSize = '24px';
-loadingText.style.color = '#000000';
-loadingText.style.textAlign = 'center';
-loadingText.style.zIndex = '10';
-loadingText.textContent = 'Loading';
-
-// Append the loading text to the body
-document.body.appendChild(loadingText);
-
-// Animate the loading dots
-let dotCount = 0;
-setInterval(() => {
-  dotCount = (dotCount + 1) % 4;  // Loop between 0 and 3 dots
-  loadingText.textContent = 'Loading' + '.'.repeat(dotCount);
-}, 500);
