@@ -10,10 +10,22 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 10;
 
-// Create a renderer and add it to the document
-const renderer = new THREE.WebGLRenderer();
+// Create a renderer and add it to the document, enable alpha
+const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+scene.background = new THREE.Color(0x000000); // Sets background to black
 document.body.appendChild(renderer.domElement);
+
+// Create a video element
+const video = document.createElement('video');
+video.src = 'assets/ezgif.com-gif-to-mp4-converter(4).mp4';  // Path to your video file
+video.loop = true;
+video.muted = true;
+video.play();
+
+// Create a video texture and set it as the background
+const videoTexture = new THREE.VideoTexture(video);
+scene.background = videoTexture;  // Lighting does not affect this
 
 // Add some ambient light and directional light for better material rendering
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -122,7 +134,7 @@ loadingText.style.position = 'absolute';
 loadingText.style.bottom = '50px';
 loadingText.style.width = '100%';
 loadingText.style.fontSize = '24px';
-loadingText.style.color = '#ffffff';
+loadingText.style.color = '#000000';
 loadingText.style.textAlign = 'center';
 loadingText.style.zIndex = '10';
 loadingText.textContent = 'Loading';
@@ -135,4 +147,4 @@ let dotCount = 0;
 setInterval(() => {
   dotCount = (dotCount + 1) % 4;  // Loop between 0 and 3 dots
   loadingText.textContent = 'Loading' + '.'.repeat(dotCount);
-}, 500);  // Change every half second
+}, 500);
